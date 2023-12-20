@@ -14,6 +14,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 </head>
 <style>
     #input1 {
@@ -69,6 +71,26 @@
         <br>
         <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo">Patient Table</button>
         <div id="demo" class="collapse">
+
+            <div id="myModal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+    
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Edit Doctor</h4>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="text" id="edit-input" class="form-control">
+                        </div>
+                        <div class="modal-footer" id="edit-footer">
+    
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
             <table class="table table-hover" style="text-align: center">
                 <thead>
                     <tr>
@@ -85,8 +107,12 @@
                             <td>{{ $item->name }}</td>
                             <td>{{ $item->doctor_id}}</td>
                             <td>
-                                <a class="btn btn-danger" href="/delete_patient/{{ $item->id }}">Delete</a>
-                                <a class="btn btn-primary" href="/edit_patient/{{ $item->id }}">Edit</a>
+                                <button class="btn btn-danger" type="button"
+                                    onclick="delete_patient({{ $item->id }})">Delete</button>
+                                <button type="button" class="btn btn-info"
+                                    onclick="open_edit('{{ $item->id }}','{{ $item->name }}')" data-toggle="modal"
+                                    data-target="#myModal">Edit</button>
+    
                             </td>
     
                         </tr>
@@ -100,5 +126,95 @@
 
     </div>
 </body>
+<script>
+    function save_doctor() {
+        var form = new FormData();
+        form.append("name", document.getElementById('input1').value);
+        form.append("_token", '{{ csrf_token() }}');
 
+        var settings = {
+            "url": "http://clinic.loc/save_patient",
+            "method": "POST",
+            "timeout": 0,
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": form
+        };
+
+        $.ajax(settings).done(function(response) {
+            document.getElementById('input1').value = '';
+            let data = JSON.parse(response);
+            set_data(data);
+        });
+
+    }
+
+    function set_data(data) {
+        $('#tbody').html('');
+        for (const i of data) {
+            $('#tbody').append(`
+                    <tr>
+                        <td>${i.id}</td>
+                        <td>${i.name}</td>
+                        <td>
+                            <button class="btn btn-danger" type="button"
+                                onclick="delete_patient(${i.id   })">Delete</button> 
+                                <button type="button" class="btn btn-info"
+                                onclick="open_edit('${i.id}','${i.name}')" data-toggle="modal"
+                                data-target="#myModal">Edit</button>
+                        </td>
+
+                    </tr>
+
+            `);
+
+        }
+    }
+
+    function delete_patient(id) {
+        var settings = {
+            "url": "http://clinic.loc/delete_patient/" + id,
+            "method": "GET",
+            "timeout": 0,
+        };
+
+        $.ajax(settings).done(function(response) {
+            set_data(response);
+        });
+    }
+
+
+    function open_edit(id, name) {
+        $('#edit-input').val(name);
+        $('#edit-footer').html(`
+
+        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-outline-success" data-dismiss="modal" onclick="save_edit(${id})">Save</button>
+
+        `);
+
+    }
+
+    function save_edit(id) {
+        var form = new FormData();
+        form.append("name", document.getElementById('edit-input').value);
+        form.append("_token", '{{ csrf_token() }}');
+
+        var settings = {
+            "url": "http://clinic.loc/save_edit_patient/" + id,
+            "method": "POST",
+            "timeout": 0,
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": form
+        };
+
+        $.ajax(settings).done(function(response) {
+            let parsed = JSON.parse(response);
+            set_data(parsed);
+        });
+    }
+</script>
 </html>
