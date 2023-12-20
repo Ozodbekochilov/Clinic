@@ -31,96 +31,92 @@
         color: black:
     }
 
-    a
-    {
-        color:white;
-        text-decoration:none;
+    a {
+        color: white;
+        text-decoration: none;
     }
 
-    a:hover
-    {
-        color:white;
-        text-decoration:none;
+    a:hover {
+        color: white;
+        text-decoration: none;
     }
 </style>
 
 <body>
     <div class="container">
         <h1 style="text-align: center">Patients</h1>
-        <form action="/save_patient" method="POST" enctype="multipart/form-data">
-            @csrf
-            <label for="">Name</label>
-            <br>
-            <input id="input1" type="text" name="name">
-            <br>
-            <br>
-            <label for="">Doctor</label>
-            <br>
-            <select id="" name="doctor_id">
-                @foreach ($doctor as $item)
-                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                @endforeach
-            </select>
-            <br>
-            <br>
-            <button type="submit" class="btn btn-success">Save</button>
-            <button type="button" class="btn btn-info"><a href="http://clinic.loc/doctor">Doctor</a></button>
-        </form>
+        @csrf
+        <label for="">Name</label>
+        <br>
+        <input id="input1" type="text" name="name">
+        <br>
+        <br>
+        <label for="">Doctor</label>
+        <br>
+        <select id="doctor_id" name="doctor_id">
+            @foreach ($doctor as $item)
+                <option value="{{ $item->id }}">{{ $item->name }}</option>
+            @endforeach
+        </select>
+        <br>
+        <br>
+        <button type="button" onclick="save_doctor()" class="btn btn-success">Save</button>
+        <button type="button" class="btn btn-info"><a href="http://clinic.loc/doctor">Doctor</a></button>
+
 
         <br>
         <br>
-        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#demo">Patient Table</button>
-        <div id="demo" class="collapse">
 
-            <div id="myModal" class="modal fade" role="dialog">
-                <div class="modal-dialog">
-    
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Edit Doctor</h4>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="text" id="edit-input" class="form-control">
-                        </div>
-                        <div class="modal-footer" id="edit-footer">
-    
-                        </div>
+
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit Doctor</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
-    
+                    <div class="modal-body">
+                        <input type="text" id="edit-input" class="form-control">
+                    </div>
+                    <div class="modal-footer" id="edit-footer">
+
+                    </div>
                 </div>
+
             </div>
-            <table class="table table-hover" style="text-align: center">
-                <thead>
+        </div>
+        <table class="table table-hover" style="text-align: center">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Doctor_id</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+                @foreach ($patient as $item)
                     <tr>
-                        <th>Id</th>
-                        <th>Name</th>
-                        <th>Doctor_id</th>
-                        <th>Action</th>
+                        <td>{{ $item->id }}</td>
+                        <td>{{ $item->name }}</td>
+                        <td>{{ $item->doctor_id }}</td>
+                        <td>
+                            <button class="btn btn-danger" type="button"
+                                onclick="delete_patient({{ $item->id }})">Delete</button>
+                            <button type="button" class="btn btn-info"
+                                onclick="open_edit('{{ $item->id }}','{{ $item->name }}')" data-toggle="modal"
+                                data-target="#myModal">Edit</button>
+
+                        </td>
+
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach ($patient as $item)
-                        <tr>
-                            <td>{{ $item->id }}</td>
-                            <td>{{ $item->name }}</td>
-                            <td>{{ $item->doctor_id}}</td>
-                            <td>
-                                <button class="btn btn-danger" type="button"
-                                    onclick="delete_patient({{ $item->id }})">Delete</button>
-                                <button type="button" class="btn btn-info"
-                                    onclick="open_edit('{{ $item->id }}','{{ $item->name }}')" data-toggle="modal"
-                                    data-target="#myModal">Edit</button>
-    
-                            </td>
-    
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-          </div>
-       
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
 
 
 
@@ -131,6 +127,7 @@
         var form = new FormData();
         form.append("name", document.getElementById('input1').value);
         form.append("_token", '{{ csrf_token() }}');
+        form.append("doctor_id", document.getElementById('doctor_id').value);
 
         var settings = {
             "url": "http://clinic.loc/save_patient",
@@ -157,9 +154,10 @@
                     <tr>
                         <td>${i.id}</td>
                         <td>${i.name}</td>
+                        <td>${i.doctor_id}</td>
                         <td>
                             <button class="btn btn-danger" type="button"
-                                onclick="delete_patient(${i.id   })">Delete</button> 
+                                onclick="delete_patient(${i.id})">Delete</button> 
                                 <button type="button" class="btn btn-info"
                                 onclick="open_edit('${i.id}','${i.name}')" data-toggle="modal"
                                 data-target="#myModal">Edit</button>
@@ -217,4 +215,5 @@
         });
     }
 </script>
+
 </html>

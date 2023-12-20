@@ -78,12 +78,12 @@ Route::post('/save_patient', function (Request $request) {
         'doctor_id' => $request->doctor_id,
     ]);
 
-    return back();
+    return Patients::all();
 });
 
 Route::get('/delete_patient/{id}', function ($id) {
     Patients::where('id', '=', $id)->first()->delete();
-    return back();
+    return Patients::all();
 });
 
 Route::get('/edit_patient/{id}', function ($id) {
@@ -95,7 +95,7 @@ Route::post('/save_edit_patient/{id}', function ($id, Request $req) {
     Patients::where('id', '=', $id)->first()->update([
         'name' => $req->name,
     ]);
-    return redirect()->route('/name11');
+    return Patients::all();
 });
 
     
